@@ -1,0 +1,17 @@
+{
+  "name": "pr-slackbot",
+  "version": "1.0.0",
+  "description": "A simple slack bot that notifies you when your PR request was approved",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/bolt": "^4.1.0",
+    "axios": "^1.7.7",
+    "express": "^5.0.1"
+  }
+}
