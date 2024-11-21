@@ -1,29 +1,32 @@
 const express = require("express");
-const { App } = require("@slack/bolt");
-const initializeSlackApp = require("./slack");
+const { App, ExpressReceiver } = require("@slack/bolt");
 require("dotenv").config();
 
-const expressApp = express();
+const expressReceiver = new ExpressReceiver({
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+});
 
 const slackApp = new App({
   token: process.env.SLACK_BOT_TOKEN,
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
-  receiver: expressApp,
+  receiver: expressReceiver,
 });
 
-//initialize Slack logic from slack.js
+// Initialize Slack logic from slack.js
+const initializeSlackApp = require("./slack");
 initializeSlackApp(slackApp);
 
-expressApp.post(
-  "/api/slack/events",
-  express.json(),
-  slackApp.requestListener()
-);
+// Use ExpressReceiver's app to define custom routes
+const expressApp = expressReceiver.app;
 
-// Add a default route
 expressApp.get("/", (req, res) => {
   res.send("Slack Bot is running!");
 });
+
+expressApp.use(express.json());
+
+expressApp.post("/api/slack/events", (req, res) =>
+  expressReceiver.handleRequest(req, res)
+);
 
 const PORT = process.env.PORT || 3000;
 expressApp.listen(PORT, async () => {
