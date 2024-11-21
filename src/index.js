@@ -1,5 +1,6 @@
 const express = require("express");
 const { App } = require("@slack/bolt");
+const initializeSlackApp = require("./slack");
 require("dotenv").config();
 
 const expressApp = express();
@@ -10,8 +11,8 @@ const slackApp = new App({
   receiver: expressApp,
 });
 
-// Import and initialize Slack logic from slack.js
-require("./slack")(slackApp);
+//initialize Slack logic from slack.js
+initializeSlackApp(slackApp);
 
 expressApp.post(
   "/api/slack/events",
