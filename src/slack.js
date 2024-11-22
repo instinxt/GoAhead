@@ -1,9 +1,9 @@
 module.exports = (slackApp) => {
   // Slash Command Listener
   slackApp.command("/approval-test", async ({ command, ack, client }) => {
-    await ack();
-
     try {
+      await ack();
+      console.log("Received /approval-test command");
       await client.views.open({
         trigger_id: command.trigger_id,
         view: {
@@ -46,7 +46,7 @@ module.exports = (slackApp) => {
         },
       });
     } catch (error) {
-      console.error(error);
+      console.error("Error handling approval-test endpoint", error);
     }
   });
 

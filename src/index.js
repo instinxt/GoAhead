@@ -9,6 +9,7 @@ const expressReceiver = new ExpressReceiver({
 const slackApp = new App({
   token: process.env.SLACK_BOT_TOKEN,
   receiver: expressReceiver,
+  logLevel: "debug",
 });
 
 // Initialize Slack logic from slack.js
@@ -24,9 +25,10 @@ expressApp.get("/", (req, res) => {
 
 expressApp.use(express.json());
 
-expressApp.post("/api/slack/events", (req, res) =>
-  expressReceiver.requestHandler(req, res)
-);
+expressApp.post("/api/slack/events", (req, res) => {
+  console.log("Received request at /api/slack/events");
+  expressReceiver.requestHandler(req, res);
+});
 
 const PORT = process.env.PORT || 3000;
 expressApp.listen(PORT, async () => {
