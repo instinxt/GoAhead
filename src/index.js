@@ -25,7 +25,7 @@ expressApp.get("/", (req, res) => {
 expressApp.use(express.json());
 
 expressApp.post("/api/slack/events", (req, res) =>
-  expressReceiver.handleRequest(req, res)
+  expressReceiver.requestHandler(req, res)
 );
 
 const PORT = process.env.PORT || 3000;
