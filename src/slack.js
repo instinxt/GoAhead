@@ -1,9 +1,10 @@
+// slack.js
 module.exports = (slackApp) => {
   // Slash Command Listener
   slackApp.command("/approval-test", async ({ command, ack, client }) => {
     try {
       await ack();
-      console.log("Received /approval-test command");
+
       await client.views.open({
         trigger_id: command.trigger_id,
         view: {
@@ -81,6 +82,7 @@ module.exports = (slackApp) => {
                 },
                 style: "primary",
                 action_id: "approve_request",
+                value: JSON.stringify({ requester, message }), // Include metadata
               },
               {
                 type: "button",
@@ -90,6 +92,7 @@ module.exports = (slackApp) => {
                 },
                 style: "danger",
                 action_id: "reject_request",
+                value: JSON.stringify({ requester, message }), // Include metadata
               },
             ],
           },
@@ -102,19 +105,43 @@ module.exports = (slackApp) => {
 
   slackApp.action("approve_request", async ({ ack, body, client }) => {
     await ack();
-    const requester = body.message.text.match(/<@(.*?)>/)[1];
+
+    const approver = body.user.id; // The approver's user ID
+    const { requester, message } = JSON.parse(body.actions[0].value);
+
+    // Notify the requester
     await client.chat.postMessage({
       channel: requester,
-      text: "Your approval request has been *approved* ✅",
+      text: `Your approval request has been *approved* ✅ by <@${approver}>.\n\n*Original Message:* ${message}`,
+    });
+
+    // Update the approver's message
+    await client.chat.update({
+      channel: body.channel.id,
+      ts: body.message.ts,
+      text: `You approved this request ✅ from <@${requester}>.\n\n*Original Message:* ${message}`,
+      blocks: [],
     });
   });
 
   slackApp.action("reject_request", async ({ ack, body, client }) => {
     await ack();
-    const requester = body.message.text.match(/<@(.*?)>/)[1];
+
+    const approver = body.user.id; // The rejecter's user ID
+    const { requester, message } = JSON.parse(body.actions[0].value);
+
+    // Notify the requester
     await client.chat.postMessage({
       channel: requester,
-      text: "Your approval request has been *rejected* ❌",
+      text: `Your approval request has been *rejected* ❌ by <@${approver}>.\n\n*Original Message:* ${message}`,
+    });
+
+    // Update the rejecter's message
+    await client.chat.update({
+      channel: body.channel.id,
+      ts: body.message.ts,
+      text: `You rejected this request ❌ from <@${requester}>.\n\n*Original Message:* ${message}`,
+      blocks: [],
     });
   });
 };
