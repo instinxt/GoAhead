@@ -1,5 +1,6 @@
 # Go Ahead slack bot
 A simple slack bot that automates the go ahead process
+
 Go Ahead is confirmation from your boss/senior/teammate
 
 ## Demo
